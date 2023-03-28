@@ -1,11 +1,11 @@
-import data_loader as data
+import loader
 import visualization as vis
+import sklearn as sk
+from trainer import SkTrainer
 
-def function():
-    pass
-
-def function2():
-    pass
 
 if __name__ == "__main__":
-    print("Hello Projektmunka3")
+    trainer = SkTrainer()
+    trainer.preprocess()
+    trainer.train()
+    trainer.make_results()
