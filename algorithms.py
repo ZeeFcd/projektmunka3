@@ -276,3 +276,142 @@ lowess = sm.nonparametric.lowess(y, x, frac=0.3)
 # extract the smoothed x and y values
 y_smoothed = lowess[:, 1]
 x_smoothed = lowess[:, 0]
+
+# ----- Classification and Regression Tree -----
+
+# Create and train the decision tree regressor model
+dt_regressor = DecisionTreeRegressor(random_state=0)
+dt_regressor.fit(X_train, y_train)
+
+# Make predictions on the test set
+y_pred = dt_regressor.predict(X_test)
+
+# Evaluate the model's performance
+mse = mean_squared_error(y_test, y_pred)
+print("Mean squared error: ", mse)
+
+# ----- Iterative Dichotomiser 3 (ID3) -----
+
+class Node:
+    def __init__(self, is_leaf=False, label=None, feature=None, threshold=None):
+        self.is_leaf = is_leaf
+        self.label = label
+        self.feature = feature
+        self.threshold = threshold
+        self.left = None
+        self.right = None
+        
+class ID3:
+    def __init__(self, max_depth=None, min_samples_leaf=1, regression=False):
+        self.max_depth = max_depth
+        self.min_samples_leaf = min_samples_leaf
+        self.regression = regression
+    
+    def fit(self, X, y):
+        self.root = self._build_tree(X, y, depth=0)
+        
+    def predict(self, X):
+        return np.array([self._predict_tree(self.root, x) for x in X])
+    
+    def _build_tree(self, X, y, depth):
+        n_samples, n_features = X.shape
+        
+        # stopping criterion
+        if (self.max_depth is not None and depth >= self.max_depth) or n_samples < self.min_samples_leaf:
+            if self.regression:
+                return Node(is_leaf=True, label=np.mean(y))
+            else:
+                unique, counts = np.unique(y, return_counts=True)
+                label = unique[np.argmax(counts)]
+                return Node(is_leaf=True, label=label)
+        
+        if self.regression:
+            impurity_func = self._variance_reduction
+        else:
+            impurity_func = self._entropy
+            
+        best_impurity = float("inf") if self.regression else -float("inf")
+        best_feature = None
+        best_threshold = None
+        
+        # loop through all features and thresholds to find the best split
+        for i in range(n_features):
+            thresholds = np.unique(X[:, i])
+            for threshold in thresholds:
+                impurity = impurity_func(y, X[:, i], threshold)
+                if impurity < best_impurity:
+                    best_impurity = impurity
+                    best_feature = i
+                    best_threshold = threshold
+        
+        # stopping criterion if no split improves the impurity
+        if best_feature is None or best_impurity == float("inf") or best_impurity == -float("inf"):
+            if self.regression:
+                return Node(is_leaf=True, label=np.mean(y))
+            else:
+                unique, counts = np.unique(y, return_counts=True)
+                label = unique[np.argmax(counts)]
+                return Node(is_leaf=True, label=label)
+        
+        # split the node and grow subtrees
+        left_idxs = X[:, best_feature] <= best_threshold
+        right_idxs = X[:, best_feature] > best_threshold
+        left = self._build_tree(X[left_idxs], y[left_idxs], depth+1)
+        right = self._build_tree(X[right_idxs], y[right_idxs], depth+1)
+        
+        return Node(is_leaf=False, feature=best_feature, threshold=best_threshold, left=left, right=right)
+    
+    def _predict_tree(self, node, x):
+        if node.is_leaf:
+            return node.label
+        if x[node.feature] <= node.threshold:
+            return self._predict_tree(node.left, x)
+        else:
+            return self._predict_tree(node.right, x)
+        
+        def entropy(y):
+            left_idxs = x <= threshold
+        right_idxs = x > threshold
+        left_p = np.mean(y[left_idxs])
+        right_p = np.mean(y[right_idxs])
+        p = np.array([left_p, right_p])
+        p = p[p > counts] = np.unique(y, return_counts=True)
+        p = counts / len(y)
+        return -np.sum(p * np.log2(p))
+
+def information_gain(X, y, feature_idx):
+    values, counts = np.unique(X[:, feature_idx], return_counts=True)
+    p = counts / np.sum(counts)
+    gain = entropy(y)
+    for i in range(len(values)):
+        subset = y[X[:, feature_idx] == values[i]]
+        gain -= p[i] * entropy(subset)
+    return gain
+
+def id3(X, y, features):
+    # Base case 1: If all labels are the same, return that label
+    if len(np.unique(y)) == 1:
+        return y[0]
+    # Base case 2: If there are no features left to split on, return the most common label
+    if len(features) == 0:
+        return np.bincount(y).argmax()
+    # Find the feature with the highest information gain
+    gains = [information_gain(X, y, feature_idx) for feature_idx in features]
+    best_feature_idx = features[np.argmax(gains)]
+    tree = {best_feature_idx: {}}
+    # Remove the best feature from the feature list
+    remaining_features = [f for f in features if f != best_feature_idx]
+    # Recursively build the tree
+    for value in np.unique(X[:, best_feature_idx]):
+        value = int(value)
+        subset = X[X[:, best_feature_idx] == value]
+        sub_y = y[X[:, best_feature_idx] == value]
+        subtree = id3(subset, sub_y, remaining_features)
+        tree[best_feature_idx][value] = subtree
+    return tree
+
+# Example usage
+X = np.array([[0, 0], [0, 1], [1, 0], [1, 1]])
+y = np.array([0, 1, 1, 0])
+tree = id3(X, y, [0, 1])
+print(tree)
