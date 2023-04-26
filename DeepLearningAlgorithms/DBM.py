@@ -9,16 +9,16 @@ from tensorflow.keras.optimizers import Adam
 from sklearn.model_selection import train_test_split
 
 # Load the CSV dataset using pandas
-dataset = pd.read_csv('path/to/dataset.csv')
+dataset = pd.read_csv('training.csv')
 
 # Split the dataset into training and testing data
 train_data, test_data = train_test_split(dataset, test_size=0.2)
 
 # Split the training and testing data into input features and labels
-x_train = train_data.drop(['label'], axis=1).to_numpy()
-y_train = train_data['label'].to_numpy()
-x_test = test_data.drop(['label'], axis=1).to_numpy()
-y_test = test_data['label'].to_numpy()
+x_train = train_data.drop(['ONCOGENIC'], axis=1).to_numpy()
+y_train = train_data['ONCOGENIC'].to_numpy()
+x_test = test_data.drop(['ONCOGENIC'], axis=1).to_numpy()
+y_test = test_data['ONCOGENIC'].to_numpy()
 
 # Preprocess the data by scaling it to [0, 1]
 x_train = x_train.astype('float32') / 255.0
