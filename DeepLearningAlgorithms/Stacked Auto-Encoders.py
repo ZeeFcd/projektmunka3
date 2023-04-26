@@ -22,10 +22,10 @@ x_train = x_train.astype('float32') / 255.0
 x_test = x_test.astype('float32') / 255.0
 
 # Define the stacked autoencoder model architecture
-input_shape = (784,)
-encoding_dim1 = 128
-encoding_dim2 = 64
-encoding_dim3 = 32
+input_shape = (26,)
+encoding_dim1 = 122
+encoding_dim2 = 13
+encoding_dim3 = 2
 
 input_layer = keras.Input(shape=input_shape)
 encoder1 = layers.Dense(encoding_dim1, activation='relu')(input_layer)
@@ -34,7 +34,7 @@ encoder3 = layers.Dense(encoding_dim3, activation='relu')(encoder2)
 
 decoder1 = layers.Dense(encoding_dim2, activation='relu')(encoder3)
 decoder2 = layers.Dense(encoding_dim1, activation='relu')(decoder1)
-output_layer = layers.Dense(784, activation='sigmoid')(decoder2)
+output_layer = layers.Dense(26, activation='sigmoid')(decoder2)
 
 model = keras.Model(inputs=input_layer, outputs=output_layer)
 
@@ -53,7 +53,7 @@ encoded_x_test = encoder.predict(x_test)
 classifier = keras.Sequential(
     [
         layers.Dense(128, activation='relu', input_shape=(encoding_dim3,)),
-        layers.Dense(10, activation='softmax')
+        layers.Dense(6, activation='softmax')
     ]
 )
 

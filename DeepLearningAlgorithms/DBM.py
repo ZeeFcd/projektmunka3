@@ -25,8 +25,8 @@ x_train = x_train.astype('float32') / 255.0
 x_test = x_test.astype('float32') / 255.0
 
 # Define the Deep Boltzmann Machine model architecture
-num_visible = 784
-num_hidden = 500
+num_visible = 26
+num_hidden = 122
 num_iterations = 500
 
 input_layer = Input(shape=(num_visible,))

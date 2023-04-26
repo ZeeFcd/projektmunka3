@@ -18,8 +18,8 @@ x_test = test_data.drop(['ONCOGENIC'], axis=1).to_numpy()
 y_test = test_data['ONCOGENIC'].to_numpy()
 
 # Reshape the input features to be 4D for CNN input
-x_train = x_train.reshape(x_train.shape[0], 28, 28, 1)
-x_test = x_test.reshape(x_test.shape[0], 28, 28, 1)
+x_train = x_train.reshape(x_train.shape[0], 13, 2, 1)
+x_test = x_test.reshape(x_test.shape[0], 13, 2, 1)
 
 # Preprocess the data by scaling it to [0, 1] and one-hot encoding the labels
 x_train = x_train.astype('float32') / 255.0
@@ -30,12 +30,12 @@ y_test = keras.utils.to_categorical(y_test)
 # Define the CNN model architecture
 model = keras.Sequential(
     [
-        layers.Conv2D(32, (3, 3), activation='relu', input_shape=(28, 28, 1)),
-        layers.MaxPooling2D((2, 2)),
-        layers.Conv2D(64, (3, 3), activation='relu'),
+        layers.Conv2D(32, (3, 1), activation='relu', input_shape=(13, 2, 1)),
+        layers.MaxPooling2D((1, 1)),
+        layers.Conv2D(64, (3, 1), activation='relu'),
         layers.MaxPooling2D((2, 2)),
         layers.Flatten(),
-        layers.Dense(10, activation='softmax')
+        layers.Dense(6, activation='softmax')
     ]
 )
 

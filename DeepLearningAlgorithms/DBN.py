@@ -25,11 +25,11 @@ x_train = x_train.astype('float32') / 255.0
 x_test = x_test.astype('float32') / 255.0
 
 # Define the deep belief network model architecture
-num_visible = 784
-num_hidden1 = 500
-num_hidden2 = 300
-num_hidden3 = 100
-num_classes = 10
+num_visible = 26
+num_hidden1 = 122
+num_hidden2 = 13
+num_hidden3 = 2
+num_classes = 6
 
 model = Sequential()
 model.add(Dense(num_hidden1, input_shape=(num_visible,), activation='relu'))
@@ -41,7 +41,7 @@ model.add(Dense(num_classes, activation='softmax'))
 model.compile(loss='categorical_crossentropy', optimizer=Adam(), metrics=['accuracy'])
 
 # Train the deep belief network model
-num_epochs = 10
+num_epochs = 6
 batch_size = 32
 history = model.fit(x_train, keras.utils.to_categorical(y_train), batch_size=batch_size, epochs=num_epochs, validation_split=0.1)
 
