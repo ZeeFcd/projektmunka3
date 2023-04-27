@@ -1,12 +1,22 @@
 import numpy as np
+import pandas as pd
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_squared_error
 
+
+# Load the CSV dataset using pandas
+dataset = pd.read_csv('training.csv')
+
+# Split the dataset into training and testing data
+train_data = dataset.sample(frac=0.8, random_state=0)
+test_data = dataset.drop(train_data.index)
+
+
 # Generate random data for training and testing
-X_train = np.random.rand(100, 1)
-y_train = 2*X_train + np.random.randn(100, 1)*0.2
-X_test = np.random.rand(20, 1)
-y_test = 2*X_test + np.random.randn(20, 1)*0.2
+X_train = train_data.drop(['ONCOGENIC'], axis=1).to_numpy()
+y_train = train_data['ONCOGENIC'].to_numpy()
+X_test = test_data.drop(['ONCOGENIC'], axis=1).to_numpy()
+y_test = test_data['ONCOGENIC'].to_numpy()
 
 # Create a Linear Regression object
 regressor = LinearRegression()

@@ -1,28 +1,50 @@
-import numpy as np
 import pandas as pd
 import statsmodels.api as sm
 
-# Generate random data
-np.random.seed(123)
-x1 = np.random.randn(100)
-x2 = np.random.randn(100)
-x3 = np.random.randn(100)
-y = 2*x1 + 3*x2 + 5*x3 + np.random.randn(100)
+# Load the dataset
+data = pd.read_csv('training.csv')
 
-# Create a pandas dataframe from the data
-data = pd.DataFrame({'x1': x1, 'x2': x2, 'x3': x3, 'y': y})
+# Define the predictor variables
+predictors = data.drop(['ONCOGENIC'], axis=1)
 
-# Initialize the stepwise regression model
-model = sm.WLS(data['y'], sm.add_constant(data[['x1', 'x2', 'x3']])).fit()
+# Define the target variable
+target = data['ONCOGENIC']
 
-# Perform the stepwise regression
-for i in range(3):
-    pvalues = model.pvalues
-    if pvalues.max() > 0.05:
-        idx = pvalues.idxmax()
-        model = sm.WLS(data['y'], sm.add_constant(data.drop(columns=[idx]))).fit()
-    else:
-        break
+# Define a function to perform stepwise regression
+def stepwise_selection(X, y, initial_list=[], threshold_in=0.01, threshold_out=0.05, verbose=True):
+    included = list(initial_list)
+    while True:
+        changed = False
+        # forward step
+        excluded = list(set(X.columns)-set(included))
+        new_pval = pd.Series(index=excluded)
+        for new_column in excluded:
+            model = sm.OLS(y, sm.add_constant(pd.DataFrame(X[included+[new_column]]))).fit()
+            new_pval[new_column] = model.pvalues[new_column]
+        best_pval = new_pval.min()
+        if best_pval < threshold_in:
+            best_feature = new_pval.idxmin()
+            included.append(best_feature)
+            if verbose:
+                print(f'Add {best_feature} with p-value {best_pval}')
+            changed = True
+        # backward step
+        model = sm.OLS(y, sm.add_constant(pd.DataFrame(X[included]))).fit()
+        # use all coefs except intercept
+        pvalues = model.pvalues.iloc[1:]
+        worst_pval = pvalues.max() # null if pvalues is empty
+        if worst_pval > threshold_out:
+            changed = True
+            worst_feature = pvalues.idxmax()
+            included.remove(worst_feature)
+            if verbose:
+                print(f'Drop {worst_feature} with p-value {worst_pval}')
+        if not changed:
+            break
+    return included
 
-# Print the final model summary
-print(model.summary())
+# Perform stepwise regression
+selected_vars = stepwise_selection(predictors, target)
+
+# Print the selected variables
+print(selected_vars)

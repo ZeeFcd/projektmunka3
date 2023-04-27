@@ -1,15 +1,19 @@
 import numpy as np
 from sklearn.linear_model import LogisticRegression
 
-# Generate random data
-np.random.seed(42) # for reproducibility
-X = np.random.randn(100, 3) # 100 samples with 3 features
-y = np.random.randint(0, 2, size=100) # binary target variable
+# Load the CSV dataset using pandas
+dataset = pd.read_csv('training.csv')
 
-# Split data into training and testing sets
-split = int(len(X) * 0.8) # 80% train, 20% test
-X_train, y_train = X[:split], y[:split]
-X_test, y_test = X[split:], y[split:]
+# Split the dataset into training and testing data
+train_data = dataset.sample(frac=0.8, random_state=0)
+test_data = dataset.drop(train_data.index)
+
+
+# Generate random data for training and testing
+X_train = train_data.drop(['ONCOGENIC'], axis=1).to_numpy()
+y_train = train_data['ONCOGENIC'].to_numpy()
+X_test = test_data.drop(['ONCOGENIC'], axis=1).to_numpy()
+y_test = test_data['ONCOGENIC'].to_numpy()
 
 # Create and train logistic regression model
 lr_model = LogisticRegression(random_state=42)

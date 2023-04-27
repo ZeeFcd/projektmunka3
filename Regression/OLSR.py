@@ -1,15 +1,20 @@
-import numpy as np
+import pandas as pd
 import statsmodels.api as sm
 
-# Generate some sample data
-np.random.seed(42)
-X = np.random.rand(100, 5)
-y = 1 + 2*X[:,0] + 3*X[:,1] + np.random.normal(size=100)
+# load training data from CSV file
+df = pd.read_csv('training.csv')
 
-# Fit the regression model using OLS
-model = sm.OLS(y, sm.add_constant(X)).fit()
+# split data into dependent and independent variables
+X = df.drop(['dependent_variable'], axis=1) # independent variables
+y = df['dependent_variable'] # dependent variable
 
-# Print the summary of the model
+# add constant to independent variables
+X = sm.add_constant(X)
+
+# create OLSR model and fit it to the data
+model = sm.OLS(y, X).fit()
+
+# print the summary of the model
 print(model.summary())
 
 
