@@ -1,32 +1,34 @@
-import numpy as np
 import pandas as pd
 from sklearn.linear_model import LinearRegression
-from sklearn.metrics import mean_squared_error
+from sklearn.metrics import mean_squared_error, r2_score
 
+# Load the dataset
+data = pd.read_csv("training.csv")
 
-# Load the CSV dataset using pandas
-dataset = pd.read_csv('training.csv')
+# Split the dataset into X (features) and y (target)
+X = data.drop("ONCOGENIC", axis=1)
+y = data["ONCOGENIC"]
 
-# Split the dataset into training and testing data
-train_data = dataset.sample(frac=0.8, random_state=0)
-test_data = dataset.drop(train_data.index)
+# Create a linear regression object
+model = LinearRegression()
 
+# Fit the model to the data
+model.fit(X, y)
 
-# Generate random data for training and testing
-X_train = train_data.drop(['ONCOGENIC'], axis=1).to_numpy()
-y_train = train_data['ONCOGENIC'].to_numpy()
-X_test = test_data.drop(['ONCOGENIC'], axis=1).to_numpy()
-y_test = test_data['ONCOGENIC'].to_numpy()
+# Make predictions on the training data
+y_pred = model.predict(X)
 
-# Create a Linear Regression object
-regressor = LinearRegression()
+# Calculate training loss (mean squared error)
+training_loss = mean_squared_error(y, y_pred)
 
-# Train the model using the training data
-regressor.fit(X_train, y_train)
+# Calculate the accuracy of the model (R-squared)
+accuracy = r2_score(y, y_pred)
 
-# Make predictions on the test data
-y_pred = regressor.predict(X_test)
+# Print the name of the model
+print("Linear Regression")
 
-# Compute mean squared error on the test data
-mse = mean_squared_error(y_test, y_pred)
-print('Mean squared error:', mse)
+# Print the training loss
+print("Training loss:", training_loss)
+
+# Print the accuracy of the model
+print("Accuracy:", accuracy)

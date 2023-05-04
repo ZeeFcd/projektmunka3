@@ -5,8 +5,8 @@ import statsmodels.api as sm
 df = pd.read_csv('training.csv')
 
 # split data into dependent and independent variables
-X = df.drop(['dependent_variable'], axis=1) # independent variables
-y = df['dependent_variable'] # dependent variable
+X = df.drop(['ONCOGENIC'], axis=1) # independent variables
+y = df['ONCOGENIC'] # dependent variable
 
 # add constant to independent variables
 X = sm.add_constant(X)

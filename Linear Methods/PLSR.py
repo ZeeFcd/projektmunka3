@@ -1,30 +1,28 @@
+# Import required libraries
 import pandas as pd
 from sklearn.cross_decomposition import PLSRegression
-from sklearn.model_selection import train_test_split
 from sklearn.metrics import r2_score
 
 # Load the dataset
-df = pd.read_csv('training.csv')
+data = pd.read_csv('training.csv')
 
-# Split the dataset into features and target variable
-X = df.drop('ONCOGENIC', axis=1)
-y = df['ONCOGENIC']
+# Split the data into independent and dependent variables
+X = data.drop('ONCOGENIC', axis=1)
+y = data['ONCOGENIC']
 
-# Split the dataset into training and testing sets
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
+# Create PLSR model with 3 components
+model = PLSRegression(n_components=3)
 
-# Instantiate the PLSR model with 2 components
-pls = PLSRegression(n_components=2)
+# Fit the model to the training data
+model.fit(X, y)
 
-# Fit the PLSR model to the training data
-pls.fit(X_train, y_train)
+# Predict the dependent variable using the model
+y_pred = model.predict(X)
 
-# Predict the target variable for the test data
-y_pred = pls.predict(X_test)
+# Calculate the R^2 score to measure model accuracy
+accuracy = r2_score(y, y_pred)
 
-# Calculate the R-squared score for the predictions
-r2 = r2_score(y_test, y_pred)
-
-# Print the R-squared score
-print('R-squared score: {:.2f}'.format(r2))
-
+# Print model name, training loss and accuracy
+print("Model Name: Partial Least Squares Regression")
+print("Training Loss: N/A")
+print("Accuracy:", accuracy)

@@ -1,50 +1,38 @@
 import pandas as pd
 import statsmodels.api as sm
+from sklearn.metrics import accuracy_score
+from sklearn.model_selection import train_test_split
 
 # Load the dataset
-data = pd.read_csv('training.csv')
+df = pd.read_csv('training.csv')
 
-# Define the predictor variables
-predictors = data.drop(['ONCOGENIC'], axis=1)
+# Split the dataset into training and testing sets
+X_train, X_test, y_train, y_test = train_test_split(df.drop('ONCOGENIC', axis=1),
+                                                    df['ONCOGENIC'],
+                                                    test_size=0.2,
+                                                    random_state=42)
 
-# Define the target variable
-target = data['ONCOGENIC']
+# Stepwise regression
+selected_features = []
+for i in range(len(X_train.columns)):
+    remaining_features = list(set(X_train.columns) - set(selected_features))
+    best_score = 0
+    for feature in remaining_features:
+        model = sm.OLS(y_train, sm.add_constant(X_train[selected_features + [feature]])).fit()
+        score = model.rsquared_adj
+        if score > best_score:
+            best_score = score
+            best_feature = feature
+    selected_features.append(best_feature)
 
-# Define a function to perform stepwise regression
-def stepwise_selection(X, y, initial_list=[], threshold_in=0.01, threshold_out=0.05, verbose=True):
-    included = list(initial_list)
-    while True:
-        changed = False
-        # forward step
-        excluded = list(set(X.columns)-set(included))
-        new_pval = pd.Series(index=excluded)
-        for new_column in excluded:
-            model = sm.OLS(y, sm.add_constant(pd.DataFrame(X[included+[new_column]]))).fit()
-            new_pval[new_column] = model.pvalues[new_column]
-        best_pval = new_pval.min()
-        if best_pval < threshold_in:
-            best_feature = new_pval.idxmin()
-            included.append(best_feature)
-            if verbose:
-                print(f'Add {best_feature} with p-value {best_pval}')
-            changed = True
-        # backward step
-        model = sm.OLS(y, sm.add_constant(pd.DataFrame(X[included]))).fit()
-        # use all coefs except intercept
-        pvalues = model.pvalues.iloc[1:]
-        worst_pval = pvalues.max() # null if pvalues is empty
-        if worst_pval > threshold_out:
-            changed = True
-            worst_feature = pvalues.idxmax()
-            included.remove(worst_feature)
-            if verbose:
-                print(f'Drop {worst_feature} with p-value {worst_pval}')
-        if not changed:
-            break
-    return included
+model = sm.OLS(y_train, sm.add_constant(X_train[selected_features])).fit()
 
-# Perform stepwise regression
-selected_vars = stepwise_selection(predictors, target)
+# Predictions and accuracy
+y_pred = model.predict(sm.add_constant(X_test[selected_features]))
+y_pred_class = (y_pred > 0.5).astype(int)
+accuracy = accuracy_score(y_test, y_pred_class)
+print("Accuracy:", accuracy)
 
-# Print the selected variables
-print(selected_vars)
+# Model name and training loss
+print("Model:", model.summary())
+print("Training loss:", model.mse_resid)

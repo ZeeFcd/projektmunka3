@@ -1,24 +1,34 @@
 import pandas as pd
+import numpy as np
 from sklearn.decomposition import NMF
+from sklearn.metrics import mean_squared_error
 
-# Load the training dataset into a pandas DataFrame
-df = pd.read_csv("training.csv")
+# Load the training data from a CSV file
+data = pd.read_csv("training.csv")
 
-# Extract the data as a numpy array and target variable
-X = df.drop("ONCOGENIC", axis=1).values
-y = df["ONCOGENIC"].values
+# Replace negative values with zeros
+X = data.drop("ONCOGENIC", axis=1).apply(lambda x: np.maximum(0, x))
 
-# Define the number of components for NMF
-n_components = 5
+# Extract the target variable
+y = data["ONCOGENIC"]
 
-# Instantiate an NMF object with the specified number of components
-model = NMF(n_components=n_components)
+# Define the NMF model
+model = NMF(n_components=10, init='random', random_state=0)
 
-# Fit the model to the data
+# Train the model on the data
 W = model.fit_transform(X)
 H = model.components_
 
-# Print the shape of the factorized matrices
-print("W shape:", W.shape)
-print("H shape:", H.shape)
+# Calculate the training loss (i.e., reconstruction error)
+training_loss = mean_squared_error(X, W.dot(H))
 
+# Predict the target variable
+y_pred = W.dot(H)[:, 0]
+
+# Calculate the accuracy of the model
+accuracy = 1 - mean_squared_error(y, y_pred) / mean_squared_error(y, y.mean())
+
+# Print the model name, training loss, and accuracy
+print("Model: NMF")
+print("Training Loss:", training_loss)
+print("Accuracy:", accuracy)

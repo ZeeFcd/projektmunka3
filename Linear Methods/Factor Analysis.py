@@ -1,33 +1,37 @@
 import pandas as pd
 import numpy as np
 from sklearn.decomposition import FactorAnalysis
+from sklearn.linear_model import LogisticRegression
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score
 
 data = pd.read_csv("training.csv")
 
 X = data.drop(columns=["ONCOGENIC"])
+y = data['ONCOGENIC']
 
 # Create an instance of the FactorAnalysis class and specify the number of latent factors we want to extract
 fa = FactorAnalysis(n_components=3)
 
-# Fit the factor analysis model to our data
-fa.fit(X)
+# Fit the model and transform the data
+X_fa = fa.fit_transform(X)
 
-# Extract the factor loadings
-loadings = pd.DataFrame(fa.components_, columns=X.columns)
+# Split the data into training and testing sets
+X_train, X_test, y_train, y_test = train_test_split(X_fa, y, test_size=0.2, random_state=42)
 
-# Extract the factor scores for each observation in our dataset
-scores = pd.DataFrame(fa.transform(X))
+# Create a Logistic Regression model
+lr = LogisticRegression()
 
-# Extracting the eigenvalues
-eigenvalues = fa.get_eigenvalues()
+# Fit the model on the training data
+lr.fit(X_train, y_train)
 
-# Extracting the communality estimates
-communality = fa.get_communalities()
+# Make predictions on the testing data
+y_pred = lr.predict(X_test)
 
-# Extracting the variance explained by each factor
-variance = fa.get_factor_variance()
+# Calculate the accuracy of the model
+accuracy = accuracy_score(y_test, y_pred)
 
-# Printing the results
-print("Eigenvalues:\n", eigenvalues)
-print("Communality estimates:\n", communality)
-print("Variance explained:\n", variance)
+print('Model: Factor Analysis with Logistic Regression')
+print('Training Loss:', fa.noise_variance_)
+print('Accuracy:', accuracy)
+

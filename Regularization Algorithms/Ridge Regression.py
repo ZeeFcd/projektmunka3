@@ -1,27 +1,34 @@
 import pandas as pd
 from sklearn.linear_model import Ridge
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import mean_squared_error
+from sklearn.metrics import accuracy_score, mean_squared_error
 
-# Load the training dataset
-data = pd.read_csv('training.csv')
+# Load the data
+data = pd.read_csv("training.csv")
 
-# Split the dataset into training and test sets
-X_train, X_test, y_train, y_test = train_test_split(data.drop('ONCOGENIC', axis=1), data['ONCOGENIC'], test_size=0.3, random_state=42)
+# Separate the target variable (ONCOGENIC) from the features
+X = data.drop("ONCOGENIC", axis=1)
+y = data["ONCOGENIC"]
 
-# Create a Ridge Regression model
-model = Ridge(alpha=1.0)
+# Split the data into training and test sets
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
-# Train the model on the training data
-model.fit(X_train, y_train)
+# Create the Ridge Regression model
+ridge_model = Ridge(alpha=1.0)
 
-# Make predictions on the test data
-y_pred = model.predict(X_test)
+# Train the model
+ridge_model.fit(X_train, y_train)
 
-# Evaluate the model's performance on the test data
-mse = mean_squared_error(y_test, y_pred)
-print('Mean squared error:', mse)
+# Predict the target variable for the test set
+y_pred = ridge_model.predict(X_test)
 
+# Calculate the accuracy of the model
+acc = accuracy_score(y_test, y_pred.round())
 
+# Calculate the training loss of the model
+train_loss = mean_squared_error(y_train, ridge_model.predict(X_train))
 
-
+# Print the accuracy and training loss of the model
+print("Model Name: Ridge Regression")
+print("Accuracy: {:.2f}%".format(acc * 100))
+print("Training Loss: {:.2f}".format(train_loss))

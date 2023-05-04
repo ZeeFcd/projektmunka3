@@ -1,20 +1,22 @@
-import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
-from statsmodels.nonparametric.smoothers_lowess import lowess
+import statsmodels.api as sm
 
-# Load the dataset
-data = pd.read_csv('training.csv')
-# Generate random data
-X = df.drop("ONCOGENIC", axis=1).values
-y = df["ONCOGENIC"].values
+# Load dataset
+data = pd.read_csv("training.csv")
 
-# Apply LOESS smoothing with a span of 0.75
-lowess = sm.nonparametric.lowess(y, x, frac=0.75)
+# Define predictor and response variables
+X = data.drop(columns=["ONCOGENIC"])
+y = data["ONCOGENIC"]
 
-# Plot the original data and the LOESS fit
-fig, ax = plt.subplots()
-ax.scatter(x, y, label='Original Data')
-ax.plot(lowess[:, 0], lowess[:, 1], 'r-', label='LOESS Fit')
-ax.legend()
-plt.show()
+# Fit LOESS model
+lowess = sm.nonparametric.lowess
+z = lowess(y, X.values[:, 0], frac=0.3)
+
+# Calculate accuracy of model
+y_pred = z[:, 1] >= 0.5
+accuracy = sum(y == y_pred) / len(y)
+
+# Print model information
+print("Model: LOESS")
+print("Training Loss:", sum((y - z[:, 1]) ** 2))
+print("Accuracy:", accuracy)

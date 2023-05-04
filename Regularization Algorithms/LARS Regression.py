@@ -1,22 +1,27 @@
-import pandas as pd
 from sklearn.linear_model import Lars
+from sklearn.metrics import accuracy_score
+import pandas as pd
 
-# Load the training dataset
-data = pd.read_csv("training.csv")
+# Load training dataset
+train_data = pd.read_csv("training.csv")
 
-# Split the dataset into features (X) and target variable (y)
-X = data.drop(columns=["ONCOGENIC"])
-y = data["ONCOGENIC"]
+# Separate the target variable from the rest of the features
+X_train = train_data.drop("ONCOGENIC", axis=1)
+y_train = train_data["ONCOGENIC"]
 
-# Create a LARS regression model
-model = Lars()
+# Initialize the LARS model with default parameters
+lars_model = Lars()
 
-# Fit the model to the training data
-model.fit(X, y)
+# Train the model
+lars_model.fit(X_train, y_train)
 
-# Predict the target variable for a new data point
-new_data = pd.DataFrame({"feature_1": [1], "feature_2": [2], "feature_3": [3]})
-prediction = model.predict(new_data)
+# Predict the target variable on the training set
+y_pred = lars_model.predict(X_train)
 
-print(prediction)
+# Calculate the accuracy of the model
+accuracy = accuracy_score(y_train, y_pred.round())
 
+# Print the name of the model, the training loss and the accuracy
+print("Model name: LARS Regression")
+print("Training loss: ", lars_model.score(X_train, y_train))
+print("Accuracy: ", accuracy)
