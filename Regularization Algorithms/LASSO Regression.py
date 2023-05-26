@@ -1,4 +1,3 @@
-# Import necessary libraries
 import pandas as pd
 from sklearn.linear_model import Lasso
 from sklearn.metrics import accuracy_score
@@ -18,13 +17,22 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_
 lasso = Lasso(alpha=0.1)
 lasso.fit(X_train, y_train)
 
-# Make predictions on the testing data
-y_pred = lasso.predict(X_test)
+# Make predictions on the training and testing data
+y_train_pred = lasso.predict(X_train)
+y_test_pred = lasso.predict(X_test)
 
-# Calculate the accuracy of the model
-acc = accuracy_score(y_test, y_pred.round())
+# Calculate the training and testing accuracy of the model
+train_accuracy = accuracy_score(y_train, y_train_pred.round())
+test_accuracy = accuracy_score(y_test, y_test_pred.round())
 
-# Print the name of the model, training loss, and accuracy
+# Print the name of the model
 print("Model name: Lasso Regression")
-print("Training loss: ", lasso.score(X_train, y_train))
-print("Accuracy: ", acc)
+
+# Print the training loss
+print("Training loss:", lasso.score(X_train, y_train))
+
+# Print the training accuracy
+print("Training Accuracy:", train_accuracy)
+
+# Print the testing accuracy
+print("Testing Accuracy:", test_accuracy)

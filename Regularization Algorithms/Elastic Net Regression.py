@@ -32,4 +32,5 @@ print("Elastic Net Regression Model")
 print("Training Loss:", model.score(X_train, y_train))
 
 # Print the accuracy of the model
-print("Accuracy:", accuracy)
+print("Testing Accuracy:", accuracy)
+print("Training Accuracy:", model.score(X_train, y_train))

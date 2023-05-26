@@ -20,12 +20,14 @@ clf = LogisticRegression()
 clf.fit(X_train_pca, y_train)
 
 # Make predictions on the test data
-y_pred = clf.predict(X_test_pca)
+y_pred_train = clf.predict(X_train_pca)
+y_pred_test = clf.predict(X_test_pca)
 
 # Calculate the accuracy of the model
-accuracy = accuracy_score(y_test, y_pred)
+train_accuracy = accuracy_score(y_train, y_pred_train)
+test_accuracy = accuracy_score(y_test, y_pred_test)
 
-# Print the name of the model and training loss
+# Print the name of the model and training and testing accuracy
 print("Model: Logistic Regression with PCA")
-print("Training Loss: N/A")
-print("Accuracy:", accuracy)
+print("Training Accuracy:", train_accuracy)
+print("Testing Accuracy:", test_accuracy)

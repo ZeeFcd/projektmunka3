@@ -16,20 +16,22 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_
 
 # Perform PCA to reduce the number of input features
 pca = PCA(n_components=5)
-X_train = pca.fit_transform(X_train)
-X_test = pca.transform(X_test)
+X_train_pca = pca.fit_transform(X_train)
+X_test_pca = pca.transform(X_test)
 
 # Train the PCR model
 regressor = LinearRegression()
-regressor.fit(X_train, y_train)
+regressor.fit(X_train_pca, y_train)
 
 # Predict the target variable using the trained model
-y_pred = regressor.predict(X_test)
+y_train_pred = regressor.predict(X_train_pca)
+y_test_pred = regressor.predict(X_test_pca)
 
-# Calculate the R-squared score to evaluate the model's accuracy
-accuracy = r2_score(y_test, y_pred)
+# Calculate the R-squared scores to evaluate the model's accuracy
+train_accuracy = r2_score(y_train, y_train_pred)
+test_accuracy = r2_score(y_test, y_test_pred)
 
-# Print the model's name, training loss (MSE), and accuracy
+# Print the model's name, training and testing accuracy
 print("PCR model")
-print("Training loss: ", regressor.score(X_train, y_train))
-print("Accuracy: ", accuracy)
+print("Training accuracy:", train_accuracy)
+print("Testing accuracy:", test_accuracy)

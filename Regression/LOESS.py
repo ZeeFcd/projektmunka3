@@ -1,5 +1,6 @@
 import pandas as pd
 import statsmodels.api as sm
+from sklearn.model_selection import train_test_split
 
 # Load dataset
 data = pd.read_csv("training.csv")
@@ -8,15 +9,22 @@ data = pd.read_csv("training.csv")
 X = data.drop(columns=["ONCOGENIC"])
 y = data["ONCOGENIC"]
 
+# Split the data into training and testing sets
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
 # Fit LOESS model
 lowess = sm.nonparametric.lowess
-z = lowess(y, X.values[:, 0], frac=0.3)
+z = lowess(y_train, X_train.values[:, 0], frac=0.3)
 
-# Calculate accuracy of model
-y_pred = z[:, 1] >= 0.5
-accuracy = sum(y == y_pred) / len(y)
+# Calculate accuracy on training set
+y_train_pred = z[:, 1] >= 0.5
+train_accuracy = sum(y_train == y_train_pred) / len(y_train)
+
+# Calculate accuracy on testing set
+y_test_pred = lowess(y_test, X_test.values[:, 0], frac=0.3)[:, 1] >= 0.5
+test_accuracy = sum(y_test == y_test_pred) / len(y_test)
 
 # Print model information
 print("Model: LOESS")
-print("Training Loss:", sum((y - z[:, 1]) ** 2))
-print("Accuracy:", accuracy)
+print("Training Accuracy:", train_accuracy)
+print("Testing Accuracy:", test_accuracy)

@@ -25,13 +25,16 @@ lr = LogisticRegression()
 # Fit the model on the training data
 lr.fit(X_train, y_train)
 
-# Make predictions on the testing data
-y_pred = lr.predict(X_test)
+# Make predictions on the training data
+y_train_pred = lr.predict(X_train)
 
-# Calculate the accuracy of the model
-accuracy = accuracy_score(y_test, y_pred)
+# Make predictions on the testing data
+y_test_pred = lr.predict(X_test)
+
+# Calculate the training and testing accuracy of the model
+training_accuracy = accuracy_score(y_train, y_train_pred)
+testing_accuracy = accuracy_score(y_test, y_test_pred)
 
 print('Model: Factor Analysis with Logistic Regression')
-print('Training Loss:', fa.noise_variance_)
-print('Accuracy:', accuracy)
-
+print('Training Accuracy:', training_accuracy)
+print('Testing Accuracy:', testing_accuracy)
