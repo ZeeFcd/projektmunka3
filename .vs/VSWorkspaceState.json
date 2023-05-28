@@ -1,7 +1,15 @@
 {
   "ExpandedNodes": [
+<<<<<<< HEAD
     ""
   ],
   "SelectedNode": "\\D:\\Programming\\Visual Studio Projects\\projekt3",
+=======
+    "",
+    "\\Decision Tree Algorithms",
+    "\\Regression"
+  ],
+  "SelectedNode": "\\Regression\\Logistic Regression.py",
+>>>>>>> Marcell
   "PreviewInSolutionExplorer": false
 }
