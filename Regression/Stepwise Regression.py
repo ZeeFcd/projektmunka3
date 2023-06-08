@@ -33,6 +33,5 @@ y_pred_class = (y_pred > 0.5).astype(int)
 accuracy = accuracy_score(y_test, y_pred_class)
 print("Accuracy:", accuracy)
 
-# Model name and training loss
 print("Model:", model.summary())
 print("Training loss:", model.mse_resid)

@@ -10,17 +10,12 @@ train_data = dataset.sample(frac=0.8, random_state=0)
 test_data = dataset.drop(train_data.index)
 
 
-# Generate random data for training and testing
 X_train = train_data.drop(['ONCOGENIC'], axis=1).to_numpy()
 y_train = train_data['ONCOGENIC'].to_numpy()
 X_test = test_data.drop(['ONCOGENIC'], axis=1).to_numpy()
 y_test = test_data['ONCOGENIC'].to_numpy()
-
-# Create and train logistic regression model
 lr_model = LogisticRegression(random_state=42)
 lr_model.fit(X_train, y_train)
-
-# Predict on test set
 y_pred = lr_model.predict(X_test)
 
 # Evaluate model performance
